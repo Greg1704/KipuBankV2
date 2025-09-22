@@ -45,23 +45,41 @@ KipuBank is a decentralized banking system built on Ethereum. Each user has thei
    - Copy the contract address
    - Verify on your testnet's block explorer
 
+## Important: Units and Values
+
+⚠️ **Critical Notice: The contract uses different units for different operations**
+
+**For deposits:**
+- Use the "Value" field in **ETH** (example: 1 ETH)
+- Remix/Etherscan automatically converts to wei internally
+
+**For withdrawals and all queries:**
+- All functions use **wei** as the unit
+- 1 ETH = 1,000,000,000,000,000,000 wei
+- Use converter: https://eth-converter.com/
+
+**Examples:**
+- **Deposit 1 ETH**: "Value" field = `1` ETH
+- **Withdraw 1 ETH**: Parameter = `1000000000000000000` wei
+- **Check balance**: Returns in wei (e.g., `1000000000000000000` = 1 ETH)
+
 ## How to Interact with the Contract
 
 ### Make a deposit:
 1. In Remix, find the `deposit` function
-2. In the "Value" field, enter the amount of ETH
+2. In the "Value" field, enter the amount of ETH (e.g., `1`)
 3. Select "Ether" as unit
 4. Click "transact"
 
 ### Make a withdrawal:
 1. Find the `withdrawal` function
-2. Enter the amount in wei you want to withdraw
+2. Enter the amount in **wei** you want to withdraw (e.g., `1000000000000000000` for 1 ETH)
 3. Click "transact"
 
 ### Query information:
-- **Your balance**: Call `balances` with your address
-- **Bank statistics**: Call `getBankStats`
-- **Limits**: Check `withdrawalLimit` and `bankCap`
+- **Your balance**: Call `balances` with your address (returns wei)
+- **Bank statistics**: Call `getBankStats` (all values in wei)
+- **Limits**: Check `withdrawalLimit` and `bankCap` (both in wei)
 
 ## Main Functions
 
@@ -92,8 +110,8 @@ kipu-bank/
 
 **Deployed contract:**
 - Network: Sepolia Testnet
-- Address: `0x64211945eb7e0C641F55e245Edc5CbEB5B2Ec782`
-- Explorer: https://sepolia.etherscan.io/address/0x64211945eb7e0c641f55e245edc5cbeb5b2ec782
+- Address: `0x8cAA02e3C6d74A70A69B253FdD59b713fE0dea5c`
+- Explorer: https://sepolia.etherscan.io/address/0x8caa02e3c6d74a70a69b253fdd59b713fe0dea5c#readContract
 
 ## Notes
 

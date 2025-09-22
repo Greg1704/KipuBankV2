@@ -124,13 +124,18 @@ contract KipuBank {
         emit Withdrawal(msg.sender, amount, balances[msg.sender]);
     }
 
-    /// @notice Get comprehensive bank statistics
+    /// @notice Get comprehensive bank statistics with named returns
     /// @dev Returns key metrics in a single call for efficiency
-    /// @return deposits_count Total number of deposits made
-    /// @return withdrawals_count Total number of withdrawals made
-    /// @return total_deposited Total ETH currently in the bank
+    /// @return totalDeposits Total number of deposits made
+    /// @return totalWithdrawals Total number of withdrawals made
+    /// @return currentDeposited Total ETH currently in the bank
     /// @return availableSpace Remaining capacity for new deposits
-    function getBankStats() external view returns (uint256, uint256, uint256, uint256) {
+    function getBankStats() external view returns (
+        uint256 totalDeposits,
+        uint256 totalWithdrawals,
+        uint256 currentDeposited,
+        uint256 availableSpace
+    ) {
         return (deposits_count, withdrawals_count, total_deposited, _calculateAvailableSpace());
     }
 
