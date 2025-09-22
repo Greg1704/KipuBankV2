@@ -10,19 +10,48 @@ contract KipuBank {
         bankCap = _bankCap;
     }
 
-    /* Variables de estado a incluir:
-    - deposits_count: Contador de depósitos
-    - withdrawals_count: Contador de retiros
-    - balances: Mapeo de balances por usuario
-    */
-
+    //state variables
     uint256 public deposits_count;
     uint256 public withdrawals_count;
+    uint256 public total_deposited;
     mapping(address => uint256) public balances;
 
-    event Deposit()
-    event Withdrawal()
-    event UnsufficientBalance()
-    event ExceedBankCap()
-    event ExceededWithdrawalLimit()
+    //events
+    event Deposit(address indexed user, uint256 amount, uint256 newBalance);
+    event Withdrawal(address indexed user, uint256 amount, uint256 newBalance);
+
+    //errors
+    error UnsufficientBalance(uint256 requested, uint256 available);
+    error ExceedBankCap(uint256 requested, uint256 availableSpace);
+    error ExceededWithdrawalLimit(uint256 requested, uint256 limit);
+    error InvalidTransaction();
+
+    //modifiers
+    modifier enoughBalance(uint256 amount) {
+        if (balances[msg.sender] < amount) {
+            revert UnsufficientBalance(amount, balances[msg.sender]);
+        }
+        _;
+    }
+
+    modifier withinBankCap(uint256 amount) {
+        if (total_deposited + amount > bankCap) {
+            revert ExceedBankCap(amount, bankCap - total_deposited);
+        }
+        _;
+    }
+
+    modifier withinWithdrawalLimit(uint256 amount) {
+        if (amount > withdrawalLimit) {
+            revert ExceededWithdrawalLimit(amount, withdrawalLimit);
+        }
+        _;
+    }
+
+    modifier validTransaction(uint256 amount) {
+        if (amount == 0) {
+            revert InvalidTransaction();
+        }
+        _;
+    }
 }
