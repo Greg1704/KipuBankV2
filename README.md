@@ -111,7 +111,7 @@ kipu-bank/
 **Deployed contract:**
 - Network: Sepolia Testnet
 - Address: `0x8cAA02e3C6d74A70A69B253FdD59b713fE0dea5c`
-- Explorer: https://sepolia.etherscan.io/address/0x8caa02e3c6d74a70a69b253fdd59b713fe0dea5c#readContract
+- Explorer: https://sepolia.etherscan.io/address/0x8caa02e3c6d74a70a69b253fdd59b713fe0dea5c
 
 ## Notes
 
