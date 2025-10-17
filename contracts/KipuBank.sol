@@ -67,6 +67,12 @@ contract KipuBank {
     
     /// @notice Thrown when user attempts to deposit or withdraw 0 ETH
     error InvalidTransaction();
+    
+    /// @notice Thrown when ETH transfer fails
+    error TransferFailed();
+    
+    /// @notice Thrown when direct ETH transfer is attempted without using deposit function
+    error DirectTransferNotAllowed();
 
     /// @notice Validates user has sufficient balance for withdrawal
     /// @param amount Amount to be withdrawn
@@ -106,21 +112,34 @@ contract KipuBank {
 
     /// @notice Deposit ETH into your personal vault
     /// @dev Validates amount and bank capacity, updates balances and counters
+    /// @dev Follows CEI pattern: Checks (modifiers) -> Effects (state updates) -> Interactions (none here)
     function deposit() external payable validTransaction(msg.value) withinBankCap(msg.value) {
+        // Effects: Update state variables before any external calls
         balances[msg.sender] += msg.value;
         total_deposited += msg.value;
         deposits_count += 1;
+        
+        // Interactions: Emit event (considered safe interaction)
         emit Deposit(msg.sender, msg.value, balances[msg.sender]);
     }
 
     /// @notice Withdraw ETH from your personal vault
-    /// @dev Validates amount, balance and limits, then transfers ETH to user
+    /// @dev Validates amount, balance and limits, then transfers ETH to user using call()
+    /// @dev Follows CEI pattern: Checks (modifiers) -> Effects (state updates) -> Interactions (external call)
     /// @param amount Amount of ETH to withdraw (in wei)
     function withdrawal(uint256 amount) external validTransaction(amount) enoughBalance(amount) withinWithdrawalLimit(amount) {
+        // Effects: Update state variables BEFORE external call (CEI pattern)
         balances[msg.sender] -= amount;
         total_deposited -= amount;
         withdrawals_count += 1;
-        payable(msg.sender).transfer(amount);
+        
+        // Interactions: External call at the end using call() instead of transfer()
+        // Using call() is more flexible and works with smart contract wallets
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        if (!success) {
+            revert TransferFailed();
+        }
+        
         emit Withdrawal(msg.sender, amount, balances[msg.sender]);
     }
 
@@ -144,5 +163,17 @@ contract KipuBank {
     /// @return Available space for deposits in wei
     function _calculateAvailableSpace() private view returns (uint256) {
         return bankCap - total_deposited;
+    }
+
+    /// @notice Receives ETH sent directly to contract without data
+    /// @dev Reverts to prevent accidental direct transfers - users must use deposit()
+    receive() external payable {
+        revert DirectTransferNotAllowed();
+    }
+
+    /// @notice Fallback function for calls with data or non-existent functions
+    /// @dev Reverts to prevent accidental calls - users must use deposit()
+    fallback() external payable {
+        revert DirectTransferNotAllowed();
     }
 }
