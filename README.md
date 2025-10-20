@@ -45,7 +45,7 @@ An advanced multi-token personal vault banking system built on Ethereum with USD
 - Events include both token amounts and USD values for transparency
 - **Why:** Essential for off-chain tracking, analytics, and building user interfaces
 
-## 📋 Contract Architecture
+## Contract Architecture
 
 ### Core Components
 ```solidity
@@ -83,7 +83,7 @@ mapping(address => TokenInfo) public supportedTokens;
 | `getUserBalance(address, address)` | View | Check user balance for a specific token |
 | `getUsdValue(address, uint256)` | View | Convert any token amount to USD |
 
-## 🛠️ Deployment Instructions
+## Deployment Instructions
 
 ### Prerequisites
 - Foundry installed
@@ -130,7 +130,7 @@ forge script script/DeployKipuBankV2.s.sol:DeployKipuBankV2 \
 - Bank Cap: $50,000 USD
 - ETH/USD Price Feed: `0x694AA1769357215DE4FAC081bf1f309aDC325306` (Chainlink Sepolia)
 
-## 📖 How to Interact
+## How to Interact
 
 ### Depositing ETH
 ```solidity
@@ -180,7 +180,7 @@ getUserBalance(YOUR_ADDRESS, TOKEN_ADDRESS)
 getUsdValue(TOKEN_ADDRESS, AMOUNT)
 ```
 
-## 🎯 Design Decisions & Trade-offs
+## Design Decisions & Trade-offs
 
 ### 1. Unified USD Withdrawal Limit
 
@@ -234,7 +234,7 @@ getUsdValue(TOKEN_ADDRESS, AMOUNT)
 - Avoids overflow issues with 18 decimals
 - Makes USD values more readable ($1,000.00 = 1000000000 in 6 decimals vs 1000000000000000000000 in 18)
 
-## 🔒 Security Considerations
+## Security Considerations
 
 1. **Reentrancy Protection:** CEI pattern prevents reentrancy attacks
 2. **Oracle Manipulation:** Price staleness check mitigates oracle manipulation
@@ -242,19 +242,7 @@ getUsdValue(TOKEN_ADDRESS, AMOUNT)
 4. **Integer Overflow:** Solidity 0.8.x has built-in overflow protection
 5. **Safe Transfers:** Uses low-level `call()` for ETH and proper ERC-20 interface for tokens
 
-## 🧪 Testing
-```bash
-# Run all tests
-forge test
-
-# Run with verbosity
-forge test -vvvv
-
-# Run specific test
-forge test --match-test testDepositEth
-```
-
-## 📁 Project Structure
+## Project Structure
 ```
 KipuBankV2/
 ├── src/
@@ -271,12 +259,12 @@ KipuBankV2/
 └── README.md                   # This file
 ```
 
-## 🔗 Useful Links
+## Useful Links
 
 - [Chainlink Price Feeds](https://docs.chain.link/data-feeds/price-feeds/addresses)
 - [OpenZeppelin Contracts](https://docs.openzeppelin.com/contracts/)
 - [Foundry Book](https://book.getfoundry.sh/)
 
-## 📝 License
+## License
 
 MIT License - See LICENSE file for details
