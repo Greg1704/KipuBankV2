@@ -4,17 +4,21 @@ An advanced multi-token personal vault banking system built on Ethereum with USD
 
 ## What's New in V2
 
-#### 1. **Multi-Token Support**
+KipuBankV2 is a complete evolution of the original KipuBank contract, transforming it from a simple ETH-only vault into a production-ready, multi-asset banking system with real-time USD valuations.
+
+### Major Improvements
+
+#### 1. Multi-Token Support
 - **Before (V1):** Only ETH deposits and withdrawals
 - **After (V2):** Support for ETH + multiple ERC-20 tokens (USDC, DAI, USDT, etc.)
 - **Why:** Users can now diversify their holdings within a single vault, making the bank more versatile and useful for real-world scenarios.
 
-#### 2. **USD-Based Accounting with Chainlink Oracles**
+#### 2. USD-Based Accounting with Chainlink Oracles
 - **Implementation:** Integration of Chainlink Data Feeds for real-time ETH/USD and token/USD price conversion
 - **Why:** All limits (withdrawal limit and bank cap) are now denominated in USD, providing consistent and predictable behavior regardless of crypto market volatility.
 - **Key Decision:** We chose to maintain a **unified USD-based withdrawal limit** across all tokens for consistency and user experience simplicity. This means whether you withdraw ETH or USDC, the same $5,000 limit applies.
 
-#### 3. **Advanced Access Control**
+#### 3. Advanced Access Control
 - **Implementation:** OpenZeppelin's `Ownable` contract for role-based permissions
 - **Functionality:** 
   - Owner can add new supported tokens with their price feeds
@@ -22,17 +26,17 @@ An advanced multi-token personal vault banking system built on Ethereum with USD
   - Critical functions are protected with `onlyOwner` modifier
 - **Why:** Allows the bank to evolve over time by supporting new tokens without redeploying the entire contract.
 
-#### 4. **Nested Mapping Architecture**
+#### 4. Nested Mapping Architecture
 - **Structure:** `mapping(address user => mapping(address token => uint256 balance))`
 - **Special Convention:** `address(0)` represents native ETH
 - **Why:** This provides a clean, gas-efficient way to track multiple tokens per user. Using `address(0)` for ETH creates a consistent interface where ETH is treated like any other asset in the system.
 
-#### 5. **Decimal Normalization**
+#### 5. Decimal Normalization
 - **Implementation:** All USD values are normalized to 6 decimals (USDC standard)
 - **Function:** `_convertToUsd()` handles conversion from any token decimals (ETH: 18, USDC: 6, etc.) to the standard 6-decimal USD representation
 - **Why:** Different tokens use different decimal places. Normalizing to a common standard ensures accurate accounting and prevents calculation errors.
 
-#### 6. **Enhanced Security & Best Practices**
+#### 6. Enhanced Security & Best Practices
 - **Custom Errors:** Gas-efficient error handling with descriptive custom errors
 - **CEI Pattern:** Strict Checks-Effects-Interactions pattern in all state-changing functions
 - **Immutable Variables:** `WITHDRAWAL_LIMIT` and `BANK_CAP` are immutable for security
@@ -40,7 +44,7 @@ An advanced multi-token personal vault banking system built on Ethereum with USD
 - **Price Staleness Check:** Rejects oracle prices older than 1 hour
   - **Why this matters:** Cryptocurrency prices can change drastically in an hour. Using stale prices could allow users to deposit/withdraw at incorrect valuations, potentially exploiting the system or losing value.
 
-#### 7. **Comprehensive Events**
+#### 7. Comprehensive Events
 - Detailed event logging for all deposits, withdrawals, and admin actions
 - Events include both token amounts and USD values for transparency
 - **Why:** Essential for off-chain tracking, analytics, and building user interfaces
@@ -186,18 +190,20 @@ getUsdValue(TOKEN_ADDRESS, AMOUNT)
 
 **Decision:** Single withdrawal limit in USD that applies to all tokens  
 **Alternative Considered:** Per-token withdrawal limits  
+
 **Rationale:** 
-- ✅ Simpler user experience (one limit to remember)
-- ✅ Fair treatment of all assets
-- ✅ Demonstrates effective use of Chainlink oracles
-- ✅ Less complexity in contract logic
-- ❌ Less flexibility for treating different tokens differently
+- Simpler user experience (one limit to remember)
+- Fair treatment of all assets
+- Demonstrates effective use of Chainlink oracles
+- Less complexity in contract logic
+- Trade-off: Less flexibility for treating different tokens differently
 
 **Conclusion:** For an educational project demonstrating oracle integration, the unified approach is superior. In production, per-token limits might be preferred for risk management.
 
 ### 2. Price Staleness Check (1 hour)
 
 **Decision:** Reject oracle prices older than 1 hour  
+
 **Rationale:**
 - Cryptocurrency markets are highly volatile
 - Stale prices could lead to incorrect valuations
@@ -207,6 +213,7 @@ getUsdValue(TOKEN_ADDRESS, AMOUNT)
 ### 3. Using address(0) for ETH
 
 **Decision:** Represent native ETH as `address(0)` in the balance mappings  
+
 **Rationale:**
 - Provides a consistent interface (ETH is treated like any other token)
 - Simplifies logic in functions that need to handle both ETH and ERC-20s
@@ -217,6 +224,7 @@ getUsdValue(TOKEN_ADDRESS, AMOUNT)
 
 **Decision:** `WITHDRAWAL_LIMIT` and `BANK_CAP` are set once at deployment  
 **Alternative Considered:** Admin functions to update limits  
+
 **Rationale:**
 - Immutability provides user trust (rules won't change)
 - Gas savings (immutable variables are cheaper to read)
@@ -228,6 +236,7 @@ getUsdValue(TOKEN_ADDRESS, AMOUNT)
 ### 5. 6-Decimal Normalization
 
 **Decision:** Normalize all USD values to 6 decimals (USDC standard)  
+
 **Rationale:**
 - USDC is the most widely used stablecoin standard
 - Provides sufficient precision for realistic banking amounts
@@ -241,6 +250,51 @@ getUsdValue(TOKEN_ADDRESS, AMOUNT)
 3. **Access Control:** Critical functions properly restricted to owner
 4. **Integer Overflow:** Solidity 0.8.x has built-in overflow protection
 5. **Safe Transfers:** Uses low-level `call()` for ETH and proper ERC-20 interface for tokens
+
+## Testing
+
+The project includes comprehensive tests covering all core functionality:
+```bash
+# Run all tests
+forge test
+
+# Run with detailed output
+forge test -vvv
+
+# Run with gas reporting
+forge test --gas-report
+```
+
+**Test Coverage (15 tests):**
+
+### ETH Operations
+- Deposit ETH successfully
+- Withdraw ETH successfully  
+- Reject zero ETH deposits
+- Reject over-withdrawals
+
+### ERC-20 Token Operations
+- Deposit tokens successfully
+- Withdraw tokens successfully
+- Reject deposits without token approval
+- Reject unsupported token deposits
+- Reject zero token deposits
+
+### Access Control
+- Owner can add new tokens
+- Non-owner blocked from adding tokens
+- Owner can remove tokens
+- ETH removal correctly blocked
+
+### View Functions
+- Bank statistics retrieval
+- USD value conversion with Chainlink
+
+**Testing Strategy:** 
+- Uses Foundry's fork testing to interact with real Chainlink price feeds on Sepolia
+- Includes mock ERC-20 token for comprehensive token testing
+- Validates all security checks and edge cases
+- All 15 tests passing
 
 ## Project Structure
 ```
@@ -268,3 +322,19 @@ KipuBankV2/
 ## License
 
 MIT License - See LICENSE file for details
+
+## Acknowledgments
+
+Built as part of the Ethereum Development Course at Kipu. This project demonstrates advanced Solidity concepts including:
+- Multi-token vault architecture
+- Chainlink oracle integration
+- OpenZeppelin access control
+- Decimal normalization strategies
+- Production-ready smart contract patterns
+
+---
+
+**Author:** Gregorio Firmani  
+**Course:** Ethereum Development - Kipu  
+**Version:** 2.0  
+**Date:** October 2025
